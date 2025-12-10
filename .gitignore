@@ -1,0 +1,11 @@
+# .gitignore
+
+# Databas
+db.sqlite3
+
+# Virtuell miljö
+venv/
+*.pyc
+
+# Miljövariabler
+.env
