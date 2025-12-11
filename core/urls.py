@@ -19,7 +19,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from management.views import ResourceViewSet, TaskViewSet # Importera våra ViewSets
+from management.views import ResourceViewSet, TaskViewSet, AllocationViewSet # Importera våra ViewSets
 
 # 1. Skapa en router (hanterar URL-skapandet automatiskt)
 router = DefaultRouter()
@@ -27,6 +27,7 @@ router = DefaultRouter()
 # 2. Registrera våra ViewSets
 router.register(r'resources', ResourceViewSet) # Skapar /api/resources/
 router.register(r'tasks', TaskViewSet)       # Skapar /api/tasks/
+router.register(r'allocate', AllocationViewSet, basename='allocation')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
