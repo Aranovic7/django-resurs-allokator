@@ -1,34 +1,212 @@
-.header {
-  background-color: #282c34;
-  padding: 15px 0;
-  color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* src/components/Header.css */
+
+:root {
+  --header-bg: rgba(18, 18, 23, 0.85); /* Mörk, nästan svart med transparens */
+  --header-text: #ffffff;
+  --accent-color: #646cff; /* Vite-lila (eller byt till din favoritfärg) */
+  --accent-hover: #747bff;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.header .container {
+/* --- Base Header --- */
+.header {
+  position: fixed; /* Låser headern i toppen */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  background: transparent;
+  padding: 1.2rem 0;
+}
+
+/* När man scrollar ner får headern en "Glassmorphism"-effekt */
+.header.scrolled {
+  background: var(--header-bg);
+  backdrop-filter: blur(12px); /* Suddig bakgrund */
+  -webkit-backdrop-filter: blur(12px); /* Safari stöd */
+  border-bottom: var(--glass-border);
+  padding: 0.8rem 0; /* Lite kompaktare vid scroll */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.header-container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.header .logo {
-  color: white;
+/* --- Logo --- */
+.logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--header-text);
   text-decoration: none;
-  font-size: 1.5em;
-  font-weight: bold;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
 }
 
-.header .nav a {
-  color: #61dafb;
-  text-decoration: none;
-  margin-left: 20px;
-  font-size: 1.1em;
-  transition: color 0.2s;
+.logo-accent {
+  color: var(--accent-color);
+  margin-left: 2px;
 }
 
-.header .nav a:hover {
+/* --- Desktop Navigation --- */
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.nav-link:hover,
+.nav-link.active {
   color: white;
-  text-decoration: underline;
+}
+
+/* Liten prick under aktiv länk */
+.nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  background-color: var(--accent-color);
+  border-radius: 50%;
+}
+
+/* En "Call to Action"-knapp för den viktigaste länken */
+.nav-link.highlight {
+  background-color: var(--accent-color);
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-link.highlight:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(100, 108, 255, 0.4);
+}
+
+.nav-link.highlight.active::after {
+  display: none; /* Ingen prick under knappen */
+}
+
+/* --- Hamburgare (Mobil) --- */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 30px;
+  height: 25px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1100; /* Måste ligga över menyn */
+}
+
+.bar {
+  width: 100%;
+  height: 3px;
+  background-color: white;
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.68, -0.6, 0.32, 1.6); /* Bounce effekt */
+  transform-origin: 1px;
+}
+
+/* Animation av hamburgare till kryss */
+.menu-toggle.open .bar:nth-child(1) {
+  transform: rotate(45deg);
+}
+.menu-toggle.open .bar:nth-child(2) {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.menu-toggle.open .bar:nth-child(3) {
+  transform: rotate(-45deg);
+}
+
+/* --- Overlay (Skugga bakom menyn) --- */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  z-index: 900;
+}
+
+.overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: flex;
+  }
+
+  .nav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 75%; /* Täcker inte hela skärmen, ser modernare ut */
+    max-width: 300px;
+    background: #1a1a1a;
+    z-index: 1000;
+    transform: translateX(100%); /* Göm utanför skärmen */
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* Snygg "Ease out" */
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    padding-top: 80px;
+  }
+
+  .nav.is-open {
+    transform: translateX(0); /* Glid in */
+  }
+
+  .nav-links {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 2rem;
+    gap: 1.5rem;
+  }
+
+  .nav-link {
+    font-size: 1.2rem;
+    width: 100%;
+    display: block;
+    color: white;
+  }
+
+  /* Justera Highlight-knappen för mobil */
+  .nav-link.highlight {
+    text-align: center;
+    margin-top: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
 }
