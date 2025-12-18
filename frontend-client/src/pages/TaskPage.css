@@ -1,0 +1,58 @@
+.page-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.priority-select {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.8rem;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+.task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.task-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Färgade kanter för prioritering */
+.border-hög {
+  border-left: 4px solid #ff4d4d;
+}
+.border-medium {
+  border-left: 4px solid #ffcc00;
+}
+.border-låg {
+  border-left: 4px solid #4dff88;
+}
+
+.priority-indicator {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  opacity: 0.7;
+}
+
+.task-card h3 {
+  margin: 0.5rem 0;
+  font-size: 1.2rem;
+}
+
+.task-card p {
+  color: #aaa;
+  font-size: 0.9rem;
+}
