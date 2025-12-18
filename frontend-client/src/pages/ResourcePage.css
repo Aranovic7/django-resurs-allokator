@@ -1,0 +1,86 @@
+.page-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+/* Formulär-design */
+.modern-form {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border-radius: 16px;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  backdrop-filter: blur(10px);
+}
+
+.modern-form input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.8rem;
+  border-radius: 8px;
+  color: white;
+  outline: none;
+}
+
+.modern-form input:focus {
+  border-color: #646cff;
+}
+
+/* Grid-layout för korten */
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.resource-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+  position: relative;
+}
+
+.resource-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.role-tag {
+  display: inline-block;
+  background: #646cff;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #ff4d4d;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  padding: 0;
+}
+
+.delete-btn:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .modern-form {
+    flex-direction: column;
+  }
+}
