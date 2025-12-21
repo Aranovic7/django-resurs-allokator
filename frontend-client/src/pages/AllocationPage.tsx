@@ -1,43 +1,54 @@
 import React, { useState } from "react"
+import { Resource, Task } from "../App"
 import "./AllocationPage.css"
 
-interface Allocation {
-  resourceName: string
-  taskTitle: string
+interface Props {
+  resources: Resource[]
+  tasks: Task[]
 }
 
-const AllocationPage: React.FC = () => {
-  const [allocations, setAllocations] = useState<Allocation[]>([])
+const AllocationPage: React.FC<Props> = ({ resources, tasks }) => {
+  const [allocations, setAllocations] = useState<
+    { res: string; task: string }[]
+  >([])
   const [isAllocating, setIsAllocating] = useState(false)
 
-  // En enkel algoritm som matchar befintlig data (vi hårdkodar lite testdata här för enkelhetens skull)
   const runAllocation = () => {
+    if (resources.length === 0 || tasks.length === 0) {
+      alert("Du behöver lägga till både resurser och uppgifter först!")
+      return
+    }
+
     setIsAllocating(true)
 
-    // Vi simulerar en beräkningstid för att det ska kännas proffsigt
     setTimeout(() => {
-      const results: Allocation[] = [
-        { resourceName: "Anna Andersson", taskTitle: "Utveckla Frontend" },
-        { resourceName: "Erik Eriksson", taskTitle: "Designa Logotyp" },
-      ]
-      setAllocations(results)
+      const newResults: { res: string; task: string }[] = []
+      // Enkel algoritm: Matcha i ordning (kan utvecklas till prioritet senare)
+      tasks.forEach((task, index) => {
+        if (resources[index % resources.length]) {
+          newResults.push({
+            res: resources[index % resources.length].name,
+            task: task.title,
+          })
+        }
+      })
+
+      setAllocations(newResults)
       setIsAllocating(false)
-    }, 1500)
+    }, 1000)
   }
 
   return (
     <div className="page-container">
-      <header className="page-header">
-        <h2 className="gradient-text">Smart Allokering</h2>
-        <p>
-          Kör algoritmen för att optimera matchningen mellan resurser och
-          uppgifter.
-        </p>
-      </header>
+      <h2 className="gradient-text">Smart Allokering</h2>
+      <p>
+        Status: {resources.length} resurser och {tasks.length} uppgifter
+        tillgängliga.
+      </p>
 
       <div className="allocation-controls">
         <button
-          className={`btn-primary big-btn ${isAllocating ? "loading" : ""}`}
+          className="btn-primary big-btn"
           onClick={runAllocation}
           disabled={isAllocating}
         >
@@ -45,20 +56,15 @@ const AllocationPage: React.FC = () => {
         </button>
       </div>
 
-      {allocations.length > 0 && (
-        <section className="results-section">
-          <h3>Optimerat Resultat</h3>
-          <div className="allocation-list">
-            {allocations.map((alloc, index) => (
-              <div key={index} className="allocation-item">
-                <span className="res-name">{alloc.resourceName}</span>
-                <span className="arrow">→</span>
-                <span className="task-name">{alloc.taskTitle}</span>
-              </div>
-            ))}
+      <div className="allocation-list">
+        {allocations.map((a, i) => (
+          <div key={i} className="allocation-item">
+            <span>👤 {a.res}</span>
+            <span className="arrow">→</span>
+            <span>📋 {a.task}</span>
           </div>
-        </section>
-      )}
+        ))}
+      </div>
     </div>
   )
 }

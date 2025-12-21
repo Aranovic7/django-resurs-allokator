@@ -1,29 +1,13 @@
 import React, { useState } from "react"
+import { Task } from "../App" // Vi hämtar typ-definitionen från App.tsx
 import "./TaskPage.css"
 
-interface Task {
-  id: number
-  title: string
-  priority: "Låg" | "Medium" | "Hög"
-  description: string
+interface Props {
+  tasks: Task[]
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>
 }
 
-const TaskPage: React.FC = () => {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: 1,
-      title: "Utveckla Frontend",
-      priority: "Hög",
-      description: "Bygg grunden i React",
-    },
-    {
-      id: 2,
-      title: "Designa Logotyp",
-      priority: "Medium",
-      description: "Skapa en modern profil",
-    },
-  ])
-
+const TaskPage: React.FC<Props> = ({ tasks, setTasks }) => {
   const [title, setTitle] = useState("")
   const [priority, setPriority] = useState<"Låg" | "Medium" | "Hög">("Medium")
 
@@ -35,7 +19,6 @@ const TaskPage: React.FC = () => {
       id: Date.now(),
       title,
       priority,
-      description: "Standardbeskrivning",
     }
 
     setTasks([...tasks, newTask])
@@ -45,7 +28,7 @@ const TaskPage: React.FC = () => {
   return (
     <div className="page-container">
       <header className="page-header">
-        <h2 className="gradient-text">Hantera Uppgifter</h2>
+        <h2 className="gradient-text">Hantera Uppgifter ({tasks.length})</h2>
         <p>Definiera projektets uppgifter och deras brådskande status.</p>
       </header>
 
@@ -80,12 +63,11 @@ const TaskPage: React.FC = () => {
           >
             <div className="priority-indicator">{task.priority}</div>
             <h3>{task.title}</h3>
-            <p>{task.description}</p>
             <button
               className="delete-btn"
               onClick={() => setTasks(tasks.filter((t) => t.id !== task.id))}
             >
-              Markera som klar
+              Ta bort
             </button>
           </div>
         ))}
