@@ -1,5 +1,6 @@
 import React, { useState } from "react"
-import { Task } from "../App" // Vi hämtar typ-definitionen från App.tsx
+import { Task } from "../App"
+import api from "../api"
 import "./TaskPage.css"
 
 interface Props {
@@ -8,70 +9,68 @@ interface Props {
 }
 
 const TaskPage: React.FC<Props> = ({ tasks, setTasks }) => {
-  const [title, setTitle] = useState("")
+  const [name, setName] = useState("") // Ändrat från title till name
   const [priority, setPriority] = useState<"Låg" | "Medium" | "Hög">("Medium")
 
-  const addTask = (e: React.FormEvent) => {
+  const addTask = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title) return
+    if (!name) return
 
-    const newTask: Task = {
-      id: Date.now(),
-      title,
-      priority,
+    try {
+      const response = await api.post("tasks/", {
+        name: name, // Matchar Django
+        estimated_time: 5.0, // Krävs av Django-modell
+        difficulty: priority === "Hög" ? 3 : priority === "Medium" ? 2 : 1,
+        description: "",
+      })
+
+      setTasks([...tasks, response.data])
+      setName("")
+    } catch (error) {
+      console.error("Kunde inte spara uppgift:", error)
     }
-
-    setTasks([...tasks, newTask])
-    setTitle("")
   }
 
   return (
     <div className="page-container">
-      <header className="page-header">
-        <h2 className="gradient-text">Hantera Uppgifter ({tasks.length})</h2>
-        <p>Definiera projektets uppgifter och deras brådskande status.</p>
-      </header>
+      <h2 className="gradient-text">Hantera Uppgifter ({tasks.length})</h2>
 
-      <section className="form-section">
-        <form onSubmit={addTask} className="modern-form">
-          <input
-            type="text"
-            placeholder="Uppgiftens namn"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <select
-            value={priority}
-            onChange={(e) => setPriority(e.target.value as any)}
-            className="priority-select"
-          >
-            <option value="Låg">Låg Prioritet</option>
-            <option value="Medium">Medium Prioritet</option>
-            <option value="Hög">Hög Prioritet</option>
-          </select>
-          <button type="submit" className="btn-primary">
-            Skapa Uppgift
-          </button>
-        </form>
-      </section>
+      <form onSubmit={addTask} className="modern-form">
+        <input
+          placeholder="Uppgiftens namn"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <select
+          value={priority}
+          onChange={(e) => setPriority(e.target.value as any)}
+        >
+          <option value="Låg">Låg</option>
+          <option value="Medium">Medium</option>
+          <option value="Hög">Hög</option>
+        </select>
+        <button type="submit" className="btn-primary">
+          Skapa
+        </button>
+      </form>
 
-      <section className="task-grid">
+      <div className="task-grid">
         {tasks.map((task) => (
-          <div
-            key={task.id}
-            className={`task-card border-${task.priority.toLowerCase()}`}
-          >
-            <div className="priority-indicator">{task.priority}</div>
-            <h3>{task.title}</h3>
+          <div key={task.id} className="task-card">
+            {/* ANVÄND task.name ISTÄLLET FÖR task.title */}
+            <h3>{task.name}</h3>
+            <p>Prioritet: {task.priority || "Ej satt"}</p>
             <button
-              className="delete-btn"
-              onClick={() => setTasks(tasks.filter((t) => t.id !== task.id))}
+              onClick={async () => {
+                await api.delete(`tasks/${task.id}/`)
+                setTasks(tasks.filter((t) => t.id !== task.id))
+              }}
             >
               Ta bort
             </button>
           </div>
         ))}
-      </section>
+      </div>
     </div>
   )
 }
