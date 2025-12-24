@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { Resource } from "../App" // Importera typen
 import "./ResourcePage.css"
+import api from "../api"
 
 interface Props {
   resources: Resource[]
@@ -11,15 +12,24 @@ const ResourcePage: React.FC<Props> = ({ resources, setResources }) => {
   const [newName, setNewName] = useState("")
   const [newRole, setNewRole] = useState("")
 
-  const addResource = (e: React.FormEvent) => {
+  const addResource = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newName || !newRole) return
-    setResources([
-      ...resources,
-      { id: Date.now(), name: newName, role: newRole },
-    ])
-    setNewName("")
-    setNewRole("")
+
+    try {
+      // Skicka till Django (notera att fälten matchar din Django-modell)
+      const response = await api.post("resources/", {
+        name: newName,
+        available_hours: 40, // Standardvärde för din modell
+      })
+
+      // Uppdatera listan i frontenden med det vi fick tillbaka från databasen
+      setResources([...resources, response.data])
+      setNewName("")
+      setNewRole("")
+    } catch (error) {
+      console.error("Kunde inte spara resurs:", error)
+    }
   }
 
   return (

@@ -1,10 +1,11 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
 import Header from "./components/Header"
 import ResourcePage from "./pages/ResourcePage"
 import TaskPage from "./pages/TaskPage"
 import AllocationPage from "./pages/AllocationPage"
 import "./App.css"
+import api from "./api"
 
 // Typer för vår data
 export interface Resource {
@@ -34,6 +35,21 @@ const App: React.FC = () => {
   // Här bor all vår data nu!
   const [resources, setResources] = useState<Resource[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
+
+  // Hämta data från Django när appen laddas
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const resResponse = await api.get("resources/")
+        const taskResponse = await api.get("tasks/")
+        setResources(resResponse.data)
+        setTasks(taskResponse.data)
+      } catch (error) {
+        console.error("Kunde inte hämta data från backenden:", error)
+      }
+    }
+    fetchData()
+  }, [])
 
   return (
     <Router>
