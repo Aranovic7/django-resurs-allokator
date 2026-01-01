@@ -8,6 +8,7 @@ class Resource(models.Model):
     Representerar en resurs (t.ex. en student/teammedlem).
     """
     name = models.CharField(max_length=100)
+    role = models.CharField(max_length=100, default="Medlem")
     available_hours = models.DecimalField(
         max_digits=4, 
         decimal_places=2, 
@@ -15,7 +16,7 @@ class Resource(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.role}"
 
 class Task(models.Model):
     """

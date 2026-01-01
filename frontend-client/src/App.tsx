@@ -7,17 +7,20 @@ import AllocationPage from "./pages/AllocationPage"
 import "./App.css"
 import api from "./api"
 
-// Typer för vår data
+// 1. Uppdaterat Resource-interface (dubbelkolla att fälten matchar din Django-modell)
 export interface Resource {
   id: number
   name: string
-  role: string
+  available_hours: number
 }
 
+// 2. Uppdaterat Task-interface för att matcha TaskPage och Backend
 export interface Task {
   id: number
-  title: string
-  priority: "Låg" | "Medium" | "Hög"
+  name: string
+  difficulty: number
+  estimated_time: number
+  description: string
 }
 
 const HomePage: React.FC = () => (
@@ -32,16 +35,16 @@ const HomePage: React.FC = () => (
 )
 
 const App: React.FC = () => {
-  // Här bor all vår data nu!
   const [resources, setResources] = useState<Resource[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
 
-  // Hämta data från Django när appen laddas
   useEffect(() => {
     const fetchData = async () => {
       try {
         const resResponse = await api.get("resources/")
         const taskResponse = await api.get("tasks/")
+
+        // Här antar vi att Django skickar tillbaka listor med objekt
         setResources(resResponse.data)
         setTasks(taskResponse.data)
       } catch (error) {
@@ -57,24 +60,17 @@ const App: React.FC = () => {
       <main className="App-content">
         <Routes>
           <Route path="/" element={<HomePage />} />
-
-          {/* Vi skickar ner listan och funktionen att uppdatera den som "props" */}
           <Route
             path="/resources"
             element={
               <ResourcePage resources={resources} setResources={setResources} />
             }
           />
-
           <Route
             path="/tasks"
             element={<TaskPage tasks={tasks} setTasks={setTasks} />}
           />
-
-          <Route
-            path="/allocate"
-            element={<AllocationPage resources={resources} tasks={tasks} />}
-          />
+          <Route path="/allocate" element={<AllocationPage />} />
         </Routes>
       </main>
     </Router>

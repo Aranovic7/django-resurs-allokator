@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Task } from "../App"
-import api from "../api"
 import "./TaskPage.css"
+import api from "../api"
 
 interface Props {
   tasks: Task[]
@@ -9,25 +9,37 @@ interface Props {
 }
 
 const TaskPage: React.FC<Props> = ({ tasks, setTasks }) => {
-  const [name, setName] = useState("") // Ändrat från title till name
-  const [priority, setPriority] = useState<"Låg" | "Medium" | "Hög">("Medium")
+  const [taskName, setTaskName] = useState("")
+  const [priority, setPriority] = useState("Medium")
 
   const addTask = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name) return
+    if (!taskName) return
 
     try {
+      // Vi mappar frontend-prioritet till Djangos 'difficulty' (1-4)
+      const diffMap: { [key: string]: number } = { Låg: 1, Medium: 2, Hög: 3 }
+
       const response = await api.post("tasks/", {
-        name: name, // Matchar Django
-        estimated_time: 5.0, // Krävs av Django-modell
-        difficulty: priority === "Hög" ? 3 : priority === "Medium" ? 2 : 1,
+        name: taskName,
+        difficulty: diffMap[priority] || 2,
+        estimated_time: 5.0, // Standardvärde
         description: "",
       })
 
       setTasks([...tasks, response.data])
-      setName("")
+      setTaskName("")
     } catch (error) {
       console.error("Kunde inte spara uppgift:", error)
+    }
+  }
+
+  const deleteTask = async (id: number) => {
+    try {
+      await api.delete(`tasks/${id}/`)
+      setTasks(tasks.filter((t) => t.id !== id))
+    } catch (error) {
+      console.error("Kunde inte radera uppgift:", error)
     }
   }
 
@@ -37,37 +49,34 @@ const TaskPage: React.FC<Props> = ({ tasks, setTasks }) => {
 
       <form onSubmit={addTask} className="modern-form">
         <input
-          placeholder="Uppgiftens namn"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          placeholder="Vad behöver göras?"
+          value={taskName}
+          onChange={(e) => setTaskName(e.target.value)}
         />
-        <select
-          value={priority}
-          onChange={(e) => setPriority(e.target.value as any)}
-        >
-          <option value="Låg">Låg</option>
-          <option value="Medium">Medium</option>
-          <option value="Hög">Hög</option>
+        <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+          <option value="Låg">Låg prioritet</option>
+          <option value="Medium">Medium prioritet</option>
+          <option value="Hög">Hög prioritet</option>
         </select>
         <button type="submit" className="btn-primary">
-          Skapa
+          Skapa uppgift
         </button>
       </form>
 
       <div className="task-grid">
         {tasks.map((task) => (
           <div key={task.id} className="task-card">
-            {/* ANVÄND task.name ISTÄLLET FÖR task.title */}
+            {/* HÄR ÄR FIXEN: Vi använder task.name istället för task.title */}
             <h3>{task.name}</h3>
-            <p>Prioritet: {task.priority || "Ej satt"}</p>
-            <button
-              onClick={async () => {
-                await api.delete(`tasks/${task.id}/`)
-                setTasks(tasks.filter((t) => t.id !== task.id))
-              }}
-            >
-              Ta bort
-            </button>
+            <div className="task-footer">
+              <span className="priority-tag">Prioritet: {priority}</span>
+              <button
+                className="delete-btn-small"
+                onClick={() => deleteTask(task.id)}
+              >
+                Ta bort
+              </button>
+            </div>
           </div>
         ))}
       </div>

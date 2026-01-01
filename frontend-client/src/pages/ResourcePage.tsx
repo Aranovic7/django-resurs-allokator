@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Resource } from "../App" // Importera typen
+import { Resource } from "../App"
 import "./ResourcePage.css"
 import api from "../api"
 
@@ -9,57 +9,70 @@ interface Props {
 }
 
 const ResourcePage: React.FC<Props> = ({ resources, setResources }) => {
-  const [newName, setNewName] = useState("")
-  const [newRole, setNewRole] = useState("")
+  const [nameInput, setNameInput] = useState("")
+  const [roleInput, setRoleInput] = useState("") // Staten för titeln (t.ex. "Ekonomiassistent")
 
   const addResource = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newName || !newRole) return
+    if (!nameInput || !roleInput) return
 
     try {
-      // Skicka till Django (notera att fälten matchar din Django-modell)
+      // Vi skickar båda fälten till Django
       const response = await api.post("resources/", {
-        name: newName,
-        available_hours: 40, // Standardvärde för din modell
+        name: nameInput,
+        role: roleInput,
+        available_hours: 40.0, // Vi sätter standardtimmar i bakgrunden
       })
 
-      // Uppdatera listan i frontenden med det vi fick tillbaka från databasen
       setResources([...resources, response.data])
-      setNewName("")
-      setNewRole("")
+      setNameInput("")
+      setRoleInput("")
     } catch (error) {
       console.error("Kunde inte spara resurs:", error)
+      alert("Fel vid sparande till databasen.")
+    }
+  }
+
+  const deleteResource = async (id: number) => {
+    try {
+      await api.delete(`resources/${id}/`)
+      setResources(resources.filter((r) => r.id !== id))
+    } catch (error) {
+      console.error("Kunde inte radera:", error)
     }
   }
 
   return (
     <div className="page-container">
       <h2 className="gradient-text">Hantera Resurser ({resources.length})</h2>
+
       <form onSubmit={addResource} className="modern-form">
         <input
-          placeholder="Namn"
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
+          placeholder="Namn (t.ex. Aran)"
+          value={nameInput}
+          onChange={(e) => setNameInput(e.target.value)}
         />
         <input
-          placeholder="Roll"
-          value={newRole}
-          onChange={(e) => setNewRole(e.target.value)}
+          placeholder="Roll (t.ex. Utvecklare)"
+          value={roleInput}
+          onChange={(e) => setRoleInput(e.target.value)}
         />
         <button type="submit" className="btn-primary">
-          Lägg till
+          Lägg till person
         </button>
       </form>
+
       <div className="resource-grid">
         {resources.map((res) => (
           <div key={res.id} className="resource-card">
-            <h3>{res.name}</h3>
-            <p className="role-tag">{res.role}</p>
+            <div className="card-content">
+              <h3>{res.name}</h3>
+              <span className="role-badge">{res.role}</span>{" "}
+              {/* Här visas titeln */}
+            </div>
             <button
               className="delete-btn"
-              onClick={() =>
-                setResources(resources.filter((r) => r.id !== res.id))
-              }
+              onClick={() => deleteResource(res.id)}
             >
               Ta bort
             </button>
