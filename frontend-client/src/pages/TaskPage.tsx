@@ -12,18 +12,27 @@ const TaskPage: React.FC<Props> = ({ tasks, setTasks }) => {
   const [taskName, setTaskName] = useState("")
   const [priority, setPriority] = useState("Medium")
 
+  // Hjälpfunktion för att visa rätt text för varje uppgift
+  const getDifficultyText = (difficulty: number) => {
+    const labels: { [key: number]: string } = {
+      1: "Låg",
+      2: "Medium",
+      3: "Hög",
+    }
+    return labels[difficulty] || "Medium"
+  }
+
   const addTask = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!taskName) return
 
     try {
-      // Vi mappar frontend-prioritet till Djangos 'difficulty' (1-4)
       const diffMap: { [key: string]: number } = { Låg: 1, Medium: 2, Hög: 3 }
 
       const response = await api.post("tasks/", {
         name: taskName,
         difficulty: diffMap[priority] || 2,
-        estimated_time: 5.0, // Standardvärde
+        estimated_time: 5.0,
         description: "",
       })
 
@@ -66,10 +75,12 @@ const TaskPage: React.FC<Props> = ({ tasks, setTasks }) => {
       <div className="task-grid">
         {tasks.map((task) => (
           <div key={task.id} className="task-card">
-            {/* HÄR ÄR FIXEN: Vi använder task.name istället för task.title */}
             <h3>{task.name}</h3>
             <div className="task-footer">
-              <span className="priority-tag">Prioritet: {priority}</span>
+              {/* FIXEN: Vi använder task.difficulty istället för 'priority'-staten */}
+              <span className="priority-tag">
+                Prioritet: {getDifficultyText(task.difficulty)}
+              </span>
               <button
                 className="delete-btn-small"
                 onClick={() => deleteTask(task.id)}
